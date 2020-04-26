@@ -44,8 +44,8 @@ s3WebsiteList=[]
 
 urlRegex='(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+):?\d*)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?'#regex to extract domain
 apktoolPath="./Dependencies/apktool_2.4.1.jar"
-s3Regex1="https://(.+?)\.s3\..+?\.amazonaws\.com\/.+?"
-s3Regex2="https://s3\..+?\.amazonaws\.com\/(.+?)\/.+?"
+s3Regex1="https*://(.+?)\.s3\..+?\.amazonaws\.com\/.+?"
+s3Regex2="https*://s3\..+?\.amazonaws\.com\/(.+?)\/.+?"
 s3Regex3="S3://(.+?)/"
 s3Website1="https*://(.+?)\.s3-website\..+?\.amazonaws\.com"
 s3Website2="https*://(.+?)\.s3-website-.+?\.amazonaws\.com"
@@ -136,31 +136,32 @@ def findS3Bucket(line):
 	temp=re.findall(s3Regex1,line)
 	if (len(temp)!=0):
 		for element in temp:
-			s3List.append(element[0])
+			s3List.append(element)
 
 
 	temp=re.findall(s3Regex2,line)
 	if (len(temp)!=0):
 		for element in temp:
-			s3List.append(element[0])
+			s3List.append(element)
 
 
 	temp=re.findall(s3Regex3,line)
 	if (len(temp)!=0):
 		for element in temp:
-			s3List.append(element[0])
+			s3List.append(element)
 
 
 def findS3Website(line):
 	temp=re.findall(s3Website1,line)
 	if (len(temp)!=0):
 		for element in temp:
-			s3WebsiteList.append(element[0])
+			s3WebsiteList.append(element)
 
 	temp=re.findall(s3Website2,line)
 	if (len(temp)!=0):
+		print temp
 		for element in temp:
-			s3WebsiteList.append(element[0])
+			s3WebsiteList.append(element)
 
 
 def findUrls(line):
@@ -233,9 +234,9 @@ def displayResults():
 		printList(s3WebsiteList)
 
 	if (len(publicIpList)==0):
-		myPrint("\nNo public IPs found", "INSECURE")
+		myPrint("\nNo IPs found", "INSECURE")
 	else:
-		myPrint("\nList of in public IPs found in the application", "SECURE")
+		myPrint("\nList of IPs found in the application", "SECURE")
 		printList(publicIpList)
 	print ""
 
@@ -258,6 +259,12 @@ print(bcolors.OKBLUE+"""
                   # Developed By Shiv Sahni - @shiv__sahni
 """+bcolors.ENDC)
 
+if ((len(sys.argv)==2) and (sys.argv[1]=="-h" or sys.argv[1]=="--help")):
+	myPrint("Usage: python APKEnum.py -p/--path <apkPathName> [ -s/--scope \"comma, seperated, list\"]","ERROR")
+	myPrint("\t-p/--path: Pathname of the APK file", "ERROR") 
+	myPrint("\t-s/--scope: List of keywords to filter out domains", "ERROR")
+	print ""
+	exit(1);
 
 if (len(sys.argv)<3):
 	myPrint("E: Please provide the required arguments to initiate", "ERROR")
