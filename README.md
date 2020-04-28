@@ -1,8 +1,6 @@
 
 # APKEnum: A Python Utility For APK Enumeration
 
-You can read more about APKEnum [here](https://medium.com/me/stats/post/cce0eda6fa30).
-
 The utility takes APK file as an input, performs reverse engineering and gathers information from the decompiled binary. As of now, the script provides the following information by searching the decompiled code:
 
 * List of domains in the application
@@ -17,14 +15,6 @@ Once downloaded, we just need to provide the pathname of the APK file. Optionall
 
 ![](https://cdn-images-1.medium.com/max/3448/1*2e5i-_GDljBNRDOYdEscaA.png)
 
-To test this out, I created a sample application with the following test data and executed APKEnum on the sample app.
-
-![](https://cdn-images-1.medium.com/max/2096/1*roTCfcNhX8satg05m1hMPw.png)
-
-The following screenshots show the results for the sample application
-
-![](https://cdn-images-1.medium.com/max/3452/1*4hfhqYxOaYUboAp5bBCFrA.png)
-
-![](https://cdn-images-1.medium.com/max/3452/1*sFXM2xs3C118aWYcZyJDuA.png)
+To have a look at the quick wakkthrough of APKEnum read [this](https://medium.com/@shivsahni2/apkenum-a-python-utility-for-apk-enumeration-cce0eda6fa30).
 
 **Would appreciate bugs, suggestions and contributions from your end**
