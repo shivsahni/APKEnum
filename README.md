@@ -1,6 +1,7 @@
 
 # APKEnum: A Python Utility For APK Enumeration
 
+Read about APKEnum [here](https://medium.com/me/stats/post/cce0eda6fa30).
 
 **Reconnaissance** is indeed the most critical and time-consuming phase of a penetration test. In this phase, we collect as much information as possible about the target. The more information we have, the more are the chances of successful exploitation. 
 
