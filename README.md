@@ -11,7 +11,7 @@ The utility takes APK file as an input, performs reverse engineering and gathers
 
 * List of S3 websites referenced in the code
 
-* List of IP addresses referenced in the. code
+* List of IP addresses referenced in the code
 
 Once downloaded, we just need to provide the pathname of the APK file. Optionally, we can also provide a list of keywords related to the target, the script would then create an additional list of in-scope domains based on the input keyword list apart from the aforementioned lists.
 
