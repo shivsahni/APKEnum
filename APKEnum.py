@@ -43,7 +43,7 @@ s3WebsiteList=[]
 
 
 urlRegex='(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+):?\d*)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?'#regex to extract domain
-apktoolPath="./Dependencies/apktool_2.4.1.jar"
+apktoolPath="./Dependencies/apktool.jar"
 s3Regex1="https*://(.+?)\.s3\..+?\.amazonaws\.com\/.+?"
 s3Regex2="https*://s3\..+?\.amazonaws\.com\/(.+?)\/.+?"
 s3Regex3="S3://(.+?)/"
@@ -204,11 +204,11 @@ def identifyURLs():
 						
 def displayResults():
 	global inScopeAuthorityList, authorityList, s3List, s3WebsiteList, publicIpList
-	inScopeAuthorityList=set(inScopeAuthorityList)
-	authorityList=set(authorityList)
-	s3List=set(s3List)
-	s3WebsiteList=set(s3WebsiteList)
-	publicIpList=set(publicIpList)
+	inScopeAuthorityList=list(set(inScopeAuthorityList))
+	authorityList=list(set(authorityList))
+	s3List=list(set(s3List))
+	s3WebsiteList=list(set(s3WebsiteList))
+	publicIpList=list(set(publicIpList))
 	if (len(authorityList)==0):
 		myPrint("\nNo URL found", "INSECURE")
 	else:
