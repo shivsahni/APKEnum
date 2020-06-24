@@ -292,11 +292,11 @@ def displayResults():
 	else:
 		myPrint("\nList of Google Map API Keys found in the application", "SECURE")
 		printList(gmapKeys)
-		if (len(unrestrictedGmapKeys)==0):
-			myPrint("\nNo Unrestricted Google MAPS API Keys found", "INSECURE")
-			return
-		myPrint("\nList of Unrestricted Google Map API Keys found in the application", "SECURE")
-		printList(unrestrictedGmapKeys)
+		# if (len(unrestrictedGmapKeys)==0):
+		# 	myPrint("\nNo Unrestricted Google MAPS API Keys found", "INSECURE")
+		# 	return
+		# myPrint("\nList of Unrestricted Google Map API Keys found in the application", "SECURE")
+		# printList(unrestrictedGmapKeys)
 
 	print ""
 
