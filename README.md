@@ -25,6 +25,8 @@ The utility takes APK file as an input, performs reverse engineering and gathers
 
 * List of IP addresses referenced in the code
 
+* List of Google Maps API Keys in the code(**NEW**)
+
 ![](https://cdn-images-1.medium.com/max/3448/1*2e5i-_GDljBNRDOYdEscaA.png)
 
 Once downloaded, you just need to provide the pathname of the APK file as shown below:

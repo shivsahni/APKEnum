@@ -6,8 +6,9 @@ import time
 import re
 import urlparse, urllib2
 import hashlib
-import thread
+from threading import Thread
 import traceback
+import requests
 
 class bcolors:
     TITLE = '\033[95m'
@@ -24,7 +25,7 @@ class bcolors:
 
 
 
-rootDir=os.path.expanduser("~")+"/.SourceCodeAnalyzer/" #ConfigFolder ~/.SourceCodeAnalyzer/
+rootDir=os.path.expanduser("~")+"/.APKEnum/" #ConfigFolder ~/.SourceCodeAnalyzer/
 projectDir=""
 apkFilePath=""
 apkFileName=""
@@ -40,16 +41,20 @@ inScopeAuthorityList=[]
 publicIpList=[]
 s3List=[]
 s3WebsiteList=[]
+gmapKeys=[]
+vulnerableGmapKeys=[]
+unrestrictedGmapKeys=[]
+gmapURLs=["https://maps.googleapis.com/maps/api/staticmap?center=45%2C10&zoom=7&size=400x400&key=", "https://maps.googleapis.com/maps/api/streetview?size=400x400&location=40.720032,-73.988354&fov=90&heading=235&pitch=10&key=", "https://www.google.com/maps/embed/v1/place?q=Seattle&key=", "https://www.google.com/maps/embed/v1/search?q=record+stores+in+Seattle&key=", "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood4&key=", "https://maps.googleapis.com/maps/api/geocode/json?latlng=40,30&key=", "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=40.6655101,-73.89188969999998&destinations=40.6905615%2C-73.9976592%7C40.6905615%2C-73.9976592%7C40.6905615%2C-73.9976592%7C40.6905615%2C-73.9976592%7C40.6905615%2C-73.9976592%7C40.6905615%2C-73.9976592%7C40.659569%2C-73.933783%7C40.729029%2C-73.851524%7C40.6860072%2C-73.6334271%7C40.598566%2C-73.7527626%7C40.659569%2C-73.933783%7C40.729029%2C-73.851524%7C40.6860072%2C-73.6334271%7C40.598566%2C-73.7527626&key=", "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Museum%20of%20Contemporary%20Art%20Australia&inputtype=textquery&fields=photos,formatted_address,name,rating,opening_hours,geometry&key=", "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Bingh&types=%28cities%29&key=", "https://maps.googleapis.com/maps/api/elevation/json?locations=39.7391536,-104.9847034&key=", "https://maps.googleapis.com/maps/api/timezone/json?location=39.6034810,-119.6822510&timestamp=1331161200&key=", "https://roads.googleapis.com/v1/nearestRoads?points=60.170880,24.942795|60.170879,24.942796|60.170877,24.942796&key="]
 
-
-urlRegex='(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+):?\d*)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?'#regex to extract domain
 apktoolPath="./Dependencies/apktool.jar"
+urlRegex='(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+):?\d*)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?'#regex to extract domain
 s3Regex1="https*://(.+?)\.s3\..+?\.amazonaws\.com\/.+?"
 s3Regex2="https*://s3\..+?\.amazonaws\.com\/(.+?)\/.+?"
 s3Regex3="S3://(.+?)/"
 s3Website1="https*://(.+?)\.s3-website\..+?\.amazonaws\.com"
 s3Website2="https*://(.+?)\.s3-website-.+?\.amazonaws\.com"
 publicIp="https*://(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?<!172\.(16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31))(?<!127)(?<!^10)(?<!^0)\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?<!192\.168)(?<!172\.(16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31))\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(?<!\.255$))"
+gMapsAPI="(AIzaSy[\w-]{33})"
 
 def myPrint(text, type):
 	if(type=="INFO"):
@@ -127,7 +132,7 @@ def reverseEngineerApplication(apkFileName):
 	myPrint("I: Decompiling the APK file using APKtool.", "INFO_WS")
 	result=os.system("java -jar "+apktoolPath+" d "+"--output "+'"'+projectDir+"/apktool/"+'"'+' "'+apkFilePath+'"'+'>/dev/null')
 	if (result!=0):
-		myPrint("E: Apktool failed with exit status "+str(result)+". Please Try Again.", "ERROR")
+		myPrint("E: Apktool failed with exit status "+str(result)+". Please try updating the APKTool binary.", "ERROR")
 		print
 		exit(1)
 	myPrint("I: Successfully decompiled the application. Proceeding with scanning code.", "INFO_WS")
@@ -151,6 +156,26 @@ def findS3Bucket(line):
 			s3List.append(element)
 
 
+def findGoogleAPIKeys(line):
+	temp=re.findall(gMapsAPI,line)
+	if (len(temp)!=0):
+		for element in temp:
+			gmapKeys.append(element)
+
+# def findUnrestrictedGmapKeys():
+# 	response=[]
+# 	for key in gmapKeys:
+# 		for url in gmapURLs:
+# 			try:
+# 				response = requests.get(url+key)
+# 			except requests.exceptions.ConnectionError as e:
+# 				myPrint("I: Connection error while finding network calls","INFO")
+# 			except:
+# 				continue
+# 		if response.status_code == 200:
+# 				unrestrictedGmapKeys.append(key)
+# 		continue
+
 def findS3Website(line):
 	temp=re.findall(s3Website1,line)
 	if (len(temp)!=0):
@@ -159,7 +184,6 @@ def findS3Website(line):
 
 	temp=re.findall(s3Website2,line)
 	if (len(temp)!=0):
-		print temp
 		for element in temp:
 			s3WebsiteList.append(element)
 
@@ -181,7 +205,7 @@ def findPublicIPs(line):
 			publicIpList.append(element[0])
 
 
-def identifyURLs():
+def performRecon():
 	global domainList, authorityList, inScopeDomainList, inScopeAuthorityList
 	filecontent=""
 	for dir_path, dirs, file_names in os.walk(rootDir+apkFileName+"_"+hashlib.md5().hexdigest()):
@@ -195,20 +219,44 @@ def identifyURLs():
 				myPrint("E: Exception while reading "+fullpath,"ERROR")
 			
 			try:
-				thread.start_new_thread(findUrls, (filecontent,))
-				thread.start_new_thread(findPublicIPs, (filecontent,))
-				thread.start_new_thread(findS3Bucket, (filecontent,))
-				thread.start_new_thread(findS3Website, (filecontent,))
+				# findUrls(filecontent)
+				# findPublicIPs(filecontent)
+				# findS3Bucket(filecontent)
+				# findS3Website(filecontent)
+				# findGoogleAPIKeys(filecontent)
+				# findUnrestrictedGmapKeys()
+				t1 = Thread(target=findUrls, args=(filecontent, ))
+				t2 = Thread(target=findPublicIPs, args=(filecontent, ))
+				t3 = Thread(target=findS3Bucket, args=(filecontent, ))
+				t4 = Thread(target=findS3Website, args=(filecontent, ))
+				t5 = Thread(target=findGoogleAPIKeys, args=(filecontent, ))
+				t1.start()
+				t2.start()
+				t3.start()
+				t4.start()
+				t5.start()
+				t1.join()
+				t2.join()
+				t3.join()
+				t4.join()
+				t5.join()
+				# t6 = Thread(target=findUnrestrictedGmapKeys, args=())
+				# t6.start()
+				# t6.join()
 			except Exception as e:
-				myPrint("E: Error while spawning threads", "ERROR")					
+				myPrint("E: Error while spawning threads", "ERROR")
 						
 def displayResults():
-	global inScopeAuthorityList, authorityList, s3List, s3WebsiteList, publicIpList
+	global inScopeAuthorityList, authorityList, s3List, s3WebsiteList, publicIpList, gmapKeys, unrestrictedGmapKeys
 	inScopeAuthorityList=list(set(inScopeAuthorityList))
 	authorityList=list(set(authorityList))
 	s3List=list(set(s3List))
 	s3WebsiteList=list(set(s3WebsiteList))
 	publicIpList=list(set(publicIpList))
+	gmapKeys=list(set(gmapKeys))
+	unrestrictedGmapKeys=list(set(unrestrictedGmapKeys))
+
+
 	if (len(authorityList)==0):
 		myPrint("\nNo URL found", "INSECURE")
 	else:
@@ -238,7 +286,20 @@ def displayResults():
 	else:
 		myPrint("\nList of IPs found in the application", "SECURE")
 		printList(publicIpList)
+
+	if (len(gmapKeys)==0):
+		myPrint("\nNo Google MAPS API Keys found", "INSECURE")
+	else:
+		myPrint("\nList of Google Map API Keys found in the application", "SECURE")
+		printList(gmapKeys)
+		if (len(unrestrictedGmapKeys)==0):
+			myPrint("\nNo Unrestricted Google MAPS API Keys found", "INSECURE")
+			return
+		myPrint("\nList of Unrestricted Google Map API Keys found in the application", "SECURE")
+		printList(unrestrictedGmapKeys)
+
 	print ""
+
 
 ####################################################################################################
 
@@ -286,7 +347,7 @@ if (sys.argv[1]=="-p" or sys.argv[1]=="--path"):
 		isNewInstallation()
 		isValidPath(apkFilePath)
 		reverseEngineerApplication(apkFileName)
-		identifyURLs()
+		performRecon()
 		displayResults()
 	except KeyboardInterrupt:
 		myPrint("I: Acknowledging KeyboardInterrupt. Thank you for using APKEnum", "INFO")
