@@ -12,7 +12,7 @@
 **Note:**  The latest APKTool(v2.4.1) JAR file is already shipped with the package. In case you face decompilation issues, you can download the latest version from [here](https://bitbucket.org/iBotPeaches/apktool/downloads/) and place it in the Dependency directory with name *apktool.jar*
 
 ### Walkthrough
-To have a look at the quick walkthrough of APKEnum have a look at [this](https://medium.com/@shivsahni2/apkenum-a-python-utility-for-apk-enumeration-cce0eda6fa30) Medium story.
+To have a look at the quick walkthrough of APKEnum have a look at [this](https://medium.com/bugbountywriteup/apkenum-a-python-utility-for-apk-enumeration-69509d11c032) Medium story.
 
 ## Usage
 The utility takes APK file as an input, performs reverse engineering and gathers information from the decompiled binary. As of now, the script provides the following information by searching the decompiled code:
